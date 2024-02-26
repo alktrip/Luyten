@@ -30,7 +30,7 @@ public class FileDialog {
 					Thread.sleep(500);
 					initSaveDialog();
 				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
+					Luyten.showExceptionDialog("¡Excepción!", e);
 				}
 			};
 		}.start();
@@ -111,7 +111,7 @@ public class FileDialog {
 		return fc;
 	}
 
-	public class FileChooserFileFilter extends FileFilter {
+	public static class FileChooserFileFilter extends FileFilter {
 		String objType;
 
 		public FileChooserFileFilter(String string) {
@@ -134,14 +134,14 @@ public class FileDialog {
 	private void retrieveOpenDialogDir(JFileChooser fc) {
 		try {
 			String currentDirStr = luytenPrefs.getFileOpenCurrentDirectory();
-			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
+			if (currentDirStr != null && !currentDirStr.trim().isEmpty()) {
 				File currentDir = new File(currentDirStr);
 				if (currentDir.exists() && currentDir.isDirectory()) {
 					fc.setCurrentDirectory(currentDir);
 				}
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
+			Luyten.showExceptionDialog("¡Excepción!", e);
 		}
 	}
 
@@ -152,21 +152,21 @@ public class FileDialog {
 				luytenPrefs.setFileOpenCurrentDirectory(currentDir.getAbsolutePath());
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
+			Luyten.showExceptionDialog("¡Excepción!", e);
 		}
 	}
 
 	private void retrieveSaveDialogDir(JFileChooser fc) {
 		try {
 			String currentDirStr = luytenPrefs.getFileSaveCurrentDirectory();
-			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
+			if (currentDirStr != null && !currentDirStr.trim().isEmpty()) {
 				File currentDir = new File(currentDirStr);
 				if (currentDir.exists() && currentDir.isDirectory()) {
 					fc.setCurrentDirectory(currentDir);
 				}
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
+			Luyten.showExceptionDialog("¡Excepción!", e);
 		}
 	}
 
@@ -177,7 +177,7 @@ public class FileDialog {
 				luytenPrefs.setFileSaveCurrentDirectory(currentDir.getAbsolutePath());
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
+			Luyten.showExceptionDialog("¡Excepción!", e);
 		}
 	}
 }

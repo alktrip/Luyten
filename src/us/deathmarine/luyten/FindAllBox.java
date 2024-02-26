@@ -60,14 +60,14 @@ public class FindAllBox extends JDialog {
 
 		progressBar = new JProgressBar(0, 100);
 
-		JLabel label = new JLabel("Find What:");
+		JLabel label = new JLabel("Buscar : ");
 		textField = new JTextField();
-		findButton = new JButton("Find");
+		findButton = new JButton("Buscar");
 		findButton.addActionListener(new FindButton());
 
-		mcase = new JCheckBox("Match Case");
-		regex = new JCheckBox("Regex");
-		wholew = new JCheckBox("Whole Words");
+		mcase = new JCheckBox("Coincidencia exacta");
+		regex = new JCheckBox("Expresión regular");
+		wholew = new JCheckBox("Todas las palabras");
 		classname = new JCheckBox("Classnames");
 
 		this.getRootPane().setDefaultButton(findButton);

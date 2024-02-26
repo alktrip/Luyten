@@ -52,8 +52,8 @@ public class FileSaver {
 	public FileSaver(JProgressBar bar, JLabel label) {
 		this.bar = bar;
 		this.label = label;
-		final JPopupMenu menu = new JPopupMenu("Cancel");
-		final JMenuItem item = new JMenuItem("Cancel");
+		final JPopupMenu menu = new JPopupMenu("Cancelar");
+		final JMenuItem item = new JMenuItem("Cancelar");
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -80,14 +80,14 @@ public class FileSaver {
 						OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
 								: new OutputStreamWriter(fos);
 						BufferedWriter bw = new BufferedWriter(writer);) {
-					label.setText("Extracting: " + file.getName());
+					label.setText("Extrayendo: " + file.getName());
 					bar.setVisible(true);
 					bw.write(text);
 					bw.flush();
-					label.setText("Completed: " + getTime(time));
+					label.setText("Completado : " + getTime(time));
 				} catch (Exception e1) {
-					label.setText("Cannot save file: " + file.getName());
-					Luyten.showExceptionDialog("Unable to save file!\n", e1);
+					label.setText("No pude guardar el archivo : " + file.getName());
+					Luyten.showExceptionDialog("¡No se pudo guardar el archivo!\n", e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -104,8 +104,8 @@ public class FileSaver {
 				try {
 					bar.setVisible(true);
 					setExtracting(true);
-					label.setText("Extracting: " + outFile.getName());
-					System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
+					label.setText("Extrayendo: " + outFile.getName());
+					System.out.println("[Guardando Todo]: " + inFile.getName() + " -> " + outFile.getName());
 					String inFileName = inFile.getName().toLowerCase();
 
 					if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
@@ -116,15 +116,15 @@ public class FileSaver {
 						doSaveUnknownFile(inFile, outFile);
 					}
 					if (cancel) {
-						label.setText("Cancelled");
+						label.setText("Cancelado");
 						outFile.delete();
 						setCancel(false);
 					} else {
-						label.setText("Completed: " + getTime(time));
+						label.setText("Completado : " + getTime(time));
 					}
 				} catch (Exception e1) {
-					label.setText("Cannot save file: " + outFile.getName());
-					Luyten.showExceptionDialog("Unable to save file!\n", e1);
+					label.setText("No puedo guardar el archivo : " + outFile.getName());
+					Luyten.showExceptionDialog("¡No se pudo guardar el archivo!\n", e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -168,12 +168,12 @@ public class FileSaver {
 				JarEntry entry = ent.nextElement();
 				if (!mass.contains(entry.getName()))
 					continue;
-				label.setText("Extracting: " + entry.getName());
+				label.setText("Extrayendo: " + entry.getName());
 				bar.setVisible(true);
 				if (entry.getName().endsWith(".class")) {
 					JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
-					label.setText("Extracting: " + etn.getName());
-					System.out.println("[SaveAll]: " + etn.getName() + " -> " + outFile.getName());
+					label.setText("Extrayendo: " + etn.getName());
+					System.out.println("[Guardar Todo]: " + etn.getName() + " -> " + outFile.getName());
 
 					if (history.add(etn.getName())) {
 						out.putNextEntry(etn);
@@ -183,7 +183,7 @@ public class FileSaver {
 							TypeReference type = metadataSystem.lookupType(internalName);
 							TypeDefinition resolvedType = null;
 							if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-								throw new Exception("Unable to resolve type.");
+								throw new Exception("Imposible resolver el tipo");
 							}
 							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, "UTF-8")
 									: new OutputStreamWriter(out);
@@ -192,8 +192,8 @@ public class FileSaver {
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
 						} catch (Exception e) {
-							label.setText("Cannot decompile file: " + entry.getName());
-							Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...", e);
+							label.setText("No pude decompilar el archivo : " + entry.getName());
+							Luyten.showExceptionDialog("¡No pude decompilar el archivo!\nOmitiendo archivo...", e);
 						} finally {
 							out.closeEntry();
 						}
@@ -244,7 +244,7 @@ public class FileSaver {
 		boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
 		TypeDefinition resolvedType = null;
 		if (type == null || ((resolvedType = type.resolve()) == null)) {
-			throw new Exception("Unable to resolve type.");
+			throw new Exception("Imposible resolver el tipo");
 		}
 		StringWriter stringwriter = new StringWriter();
 		PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
@@ -252,7 +252,7 @@ public class FileSaver {
 		settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 		String decompiledSource = stringwriter.toString();
 
-		System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
+		System.out.println("[Guardar Todo]: " + inFile.getName() + " -> " + outFile.getName());
 		try (FileOutputStream fos = new FileOutputStream(outFile);
 				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
 						: new OutputStreamWriter(fos);
@@ -264,7 +264,7 @@ public class FileSaver {
 
 	private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
 		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile);) {
-			System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
+			System.out.println("[Guardar Todo]: " + inFile.getName() + " -> " + outFile.getName());
 
 			byte data[] = new byte[1024];
 			int count;
@@ -327,8 +327,8 @@ public class FileSaver {
 		int min = (int) ((lap - (hour * 60 * 60)) / 60);
 		int sec = (int) ((lap - (hour * 60 * 60) - (min * 60)) / 60);
 		if (hour > 0)
-			sb.append("Hour:").append(hour).append(" ");
-		sb.append("Min(s): ").append(min).append(" Sec: ").append(sec);
+			sb.append("Hora:").append(hour).append(" ");
+		sb.append("Minuto(s): ").append(min).append(" Segundo(s): ").append(sec);
 		return sb.toString();
 	}
 }

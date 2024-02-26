@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ public class Luyten {
 		try {
 			String line;
 			BufferedReader br = new BufferedReader(new InputStreamReader(
-					ClassLoader.getSystemResourceAsStream("META-INF/maven/us.deathmarine/luyten/pom.properties")));
+                    Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("META-INF/maven/us.deathmarine/luyten/pom.properties"))));
 			while ((line = br.readLine()) != null) {
 				if (line.contains("version"))
 					result = line.split("=")[1];
@@ -162,40 +163,18 @@ public class Luyten {
 			pane.add(new JLabel(message));
 		}
 		pane.add(new JLabel(" \n")); // Whitespace
-		final JTextArea exception = new JTextArea(25, 100);
-		exception.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
-		exception.setText(stacktrace);
-		exception.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
-					new JPopupMenu() {
-						{
-							JMenuItem menuitem = new JMenuItem("Select All");
-							menuitem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									exception.requestFocus();
-									exception.selectAll();
-								}
-							});
-							this.add(menuitem);
-							menuitem = new JMenuItem("Copy");
-							menuitem.addActionListener(new DefaultEditorKit.CopyAction());
-							this.add(menuitem);
-						}
-
-						private static final long serialVersionUID = 562054483562666832L;
-					}.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
-		});
-		JScrollPane scroll = new JScrollPane(exception);
+		JScrollPane scroll = getjScrollPane(stacktrace);
 		scroll.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("Stacktrace"),
 				new BevelBorder(BevelBorder.LOWERED)));
 		pane.add(scroll);
+		final JLabel link = getjLabel();
+		pane.add(link);
+		JOptionPane.showMessageDialog(null, pane, "¡Error!", JOptionPane.ERROR_MESSAGE);
+	}
+
+	private static JLabel getjLabel() {
 		final String issue = "https://github.com/deathmarine/Luyten/issues";
-		final JLabel link = new JLabel("<HTML>Submit to <FONT color=\"#000099\"><U>" + issue + "</U></FONT></HTML>");
+		final JLabel link = new JLabel("<HTML>Enviar a <FONT color=\"#000099\"><U>" + issue + "</U></FONT></HTML>");
 		link.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		link.addMouseListener(new MouseAdapter() {
 			@Override
@@ -209,15 +188,46 @@ public class Luyten {
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				link.setText("<HTML>Submit to <FONT color=\"#00aa99\"><U>" + issue + "</U></FONT></HTML>");
+				link.setText("<HTML>Enviar a <FONT color=\"#00aa99\"><U>" + issue + "</U></FONT></HTML>");
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				link.setText("<HTML>Submit to <FONT color=\"#000099\"><U>" + issue + "</U></FONT></HTML>");
+				link.setText("<HTML>Enviar a <FONT color=\"#000099\"><U>" + issue + "</U></FONT></HTML>");
 			}
 		});
-		pane.add(link);
-		JOptionPane.showMessageDialog(null, pane, "Error!", JOptionPane.ERROR_MESSAGE);
+		return link;
+	}
+
+	private static JScrollPane getjScrollPane(String stacktrace) {
+		final JTextArea exception = new JTextArea(25, 100);
+		exception.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
+		exception.setText(stacktrace);
+		exception.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e)) {
+					new JPopupMenu() {
+						{
+							JMenuItem menuitem = new JMenuItem("Seleccionar todo");
+							menuitem.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									exception.requestFocus();
+									exception.selectAll();
+								}
+							});
+							this.add(menuitem);
+							menuitem = new JMenuItem("Copiar");
+							menuitem.addActionListener(new DefaultEditorKit.CopyAction());
+							this.add(menuitem);
+						}
+
+						private static final long serialVersionUID = 562054483562666832L;
+					}.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+		});
+        return new JScrollPane(exception);
 	}
 }

@@ -633,7 +633,7 @@ public class Model extends JSplitPane {
 	}
 
 	public DefaultMutableTreeNode loadNodesByUserObj(DefaultMutableTreeNode node, List<TreeNodeUserObject> args) {
-		if (args.size() > 0) {
+		if (!args.isEmpty()) {
 			TreeNodeUserObject name = args.remove(0);
 			DefaultMutableTreeNode nod = getChild(node, name);
 			if (nod == null)
@@ -643,11 +643,10 @@ public class Model extends JSplitPane {
 		return node;
 	}
 
-	@SuppressWarnings("unchecked")
 	public DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, TreeNodeUserObject name) {
-		Enumeration<DefaultMutableTreeNode> entry = node.children();
+		Enumeration<TreeNode> entry = node.children();
 		while (entry.hasMoreElements()) {
-			DefaultMutableTreeNode nods = entry.nextElement();
+			DefaultMutableTreeNode nods = (DefaultMutableTreeNode) entry.nextElement();
 			if (((TreeNodeUserObject) nods.getUserObject()).getOriginalName().equals(name.getOriginalName())) {
 				return nods;
 			}
