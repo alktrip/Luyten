@@ -2,6 +2,7 @@ package us.deathmarine.luyten;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
@@ -107,28 +108,35 @@ public class ConfigSaver {
 	}
 
 	// load preferences by their java variable names
-	private LuytenPreferences loadLuytenPreferences(Preferences prefs) throws Exception {
+	private LuytenPreferences loadLuytenPreferences(Preferences prefs) {
 		LuytenPreferences newLuytenPrefs = new LuytenPreferences();
-		for (Field field : LuytenPreferences.class.getDeclaredFields()) {
-			if (Modifier.isStatic(field.getModifiers()))
-				continue;
+
+		Arrays.stream(LuytenPreferences.class.getDeclaredFields()).filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> {
 			field.setAccessible(true);
 			String prefId = field.getName();
-			Object defaultVal = field.get(newLuytenPrefs);
+			Object defaultVal;
+			try {
+				defaultVal = field.get(newLuytenPrefs);
 
-			if (field.getType() == String.class) {
-				String defaultStr = (String) (defaultVal == null ? "" : defaultVal);
-				field.set(newLuytenPrefs, prefs.get(prefId, defaultStr));
+				if (field.getType() == String.class) {
+					String defaultStr = (String) (defaultVal == null ? "" : defaultVal);
+					field.set(newLuytenPrefs, prefs.get(prefId, defaultStr));
 
-			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-				Boolean defaultBool = (Boolean) (defaultVal == null ? new Boolean(false) : defaultVal);
-				field.setBoolean(newLuytenPrefs, prefs.getBoolean(prefId, defaultBool));
+				} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+					Boolean defaultBool = (Boolean) (defaultVal == null ? Boolean.FALSE : defaultVal);
+					field.setBoolean(newLuytenPrefs, prefs.getBoolean(prefId, defaultBool));
 
-			} else if (field.getType() == Integer.class || field.getType() == int.class) {
-				Integer defaultInt = (Integer) (defaultVal == null ? new Integer(0) : defaultVal);
-				field.setInt(newLuytenPrefs, prefs.getInt(prefId, defaultInt));
+				} else if (field.getType() == Integer.class || field.getType() == int.class) {
+					Integer defaultInt = (Integer) (defaultVal == null ? Integer.valueOf(0) : defaultVal);
+					field.setInt(newLuytenPrefs, prefs.getInt(prefId, defaultInt));
+				}
+
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
 			}
-		}
+
+		});
+
 		return newLuytenPrefs;
 	}
 
@@ -166,23 +174,28 @@ public class ConfigSaver {
 
 	// save preferences by their java variable names
 	private void saveLuytenPreferences(Preferences prefs) throws Exception {
-		for (Field field : LuytenPreferences.class.getDeclaredFields()) {
-			if (Modifier.isStatic(field.getModifiers()))
-				continue;
-			field.setAccessible(true);
-			String prefId = field.getName();
-			Object value = field.get(luytenPreferences);
 
-			if (field.getType() == String.class) {
-				prefs.put(prefId, (String) (value == null ? "" : value));
+        Arrays.stream(LuytenPreferences.class.getDeclaredFields()).toList().stream().filter(field -> !Modifier.isStatic(field.getModifiers())).forEach(field -> {
+            field.setAccessible(true);
+            String prefId = field.getName();
+            Object value;
+            try {
+                value = field.get(luytenPreferences);
 
-			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-				prefs.putBoolean(prefId, (Boolean) (value == null ? new Boolean(false) : value));
+				if (field.getType() == String.class) {
+					prefs.put(prefId, (String) (value == null ? "" : value));
 
-			} else if (field.getType() == Integer.class || field.getType() == int.class) {
-				prefs.putInt(prefId, (Integer) (value == null ? new Integer(0) : value));
-			}
-		}
+				} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+					prefs.putBoolean(prefId, (Boolean) (value == null ? Boolean.FALSE : value));
+
+				} else if (field.getType() == Integer.class || field.getType() == int.class) {
+					prefs.putInt(prefId, (Integer) (value == null ? Integer.valueOf(0) : value));
+				}
+
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
 	}
 
 	private Language findLanguageByName(String languageName) {
@@ -196,11 +209,8 @@ public class ConfigSaver {
 				return Languages.bytecodeAst();
 			}
 
-			for (Language language : Languages.debug()) {
-				if (languageName.equals(language.getName())) {
-					return language;
-				}
-			}
+			return Languages.debug().stream().filter(language -> language.getName().equals(languageName)).findFirst().orElse(null);
+			
 		}
 		return Languages.java();
 	}
